@@ -165,19 +165,6 @@
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
 
-  /* ── слайдер «до/после» ── */
-  var range = document.getElementById("purityRange");
-  var clean = document.getElementById("purityClean");
-  var handle = document.getElementById("purityHandle");
-  if (range && clean && handle) {
-    function setPurity(v) {
-      clean.style.clipPath = "inset(0 0 0 " + v + "%)";
-      handle.style.left = v + "%";
-    }
-    range.addEventListener("input", function () { setPurity(range.value); });
-    setPurity(range.value);
-  }
-
   /* ── форма → WhatsApp ── */
   var form = document.getElementById("leadForm");
   if (form) {
