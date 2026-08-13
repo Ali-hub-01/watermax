@@ -155,7 +155,7 @@ section[id], article[id] { scroll-margin-top: 84px; }
 }
 
 .brand { display: inline-flex; align-items: center; gap: .5rem; margin-right: auto; }
-.brand__logo { height: 46px; width: auto; display: block; }
+.brand__logo { height: 58px; width: auto; display: block; }
 .brand__icon { width: 27px; height: auto; }
 .brand__word {
   font-family: var(--font-display);
