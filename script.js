@@ -178,7 +178,46 @@
       if (phone) lines.push("Телефон: " + phone);
       lines.push("Интересует: " + topic);
       var url = "https://wa.me/77021212179?text=" + encodeURIComponent(lines.join("\n"));
+      fireConversion("form_submit");
       window.open(url, "_blank", "noopener");
     });
   }
+
+  /* ── Google Ads конверсии (AW-18403264659) ── */
+  /* Анти-бот: считаем только реального пользователя (боты кликают без человеческих жестов) */
+  var humanSeen = false;
+  ["pointermove", "pointerdown", "touchstart", "scroll", "keydown", "wheel"].forEach(function (ev) {
+    window.addEventListener(ev, function () { humanSeen = true; }, { once: true, passive: true });
+  });
+  function isLikelyBot() {
+    return !!navigator.webdriver || !humanSeen;
+  }
+
+  /* Маппинг событие → конверсия. Дедуп: 1 раз за сессию. Только для людей. */
+  var CONVERSIONS = {
+    form_submit:    "AW-18403264659/_phNCNDy5-UcEJORrsdE", // Отправка формы для потенциальных клиентов
+    phone_click:    "AW-18403264659/cSrFCIrF9uUcEJORrsdE", // Интерактивные номера телефонов
+    whatsapp_click: "AW-18403264659/E7-gCODz5-UcEJORrsdE"  // Контакт (WhatsApp)
+  };
+  function fireConversion(eventName) {
+    var sendTo = CONVERSIONS[eventName];
+    if (!sendTo) return;
+    if (typeof gtag !== "function") return;
+    if (isLikelyBot()) return;
+    try {
+      var k = "wm_conv_" + eventName;
+      if (sessionStorage.getItem(k)) return;   // уже отправляли в этой сессии
+      sessionStorage.setItem(k, "1");
+    } catch (e) { /* приватный режим — просто отправим один раз без памяти */ }
+    gtag("event", "conversion", { "send_to": sendTo, "value": 1.0, "currency": "USD" });
+  }
+
+  document.addEventListener("click", function (e) {
+    if (!e.isTrusted) return;                  // синтетический клик бота — игнор
+    var a = e.target.closest("a[href]");
+    if (!a) return;
+    var href = a.getAttribute("href");
+    if (href.indexOf("tel:") === 0) fireConversion("phone_click");
+    else if (href.indexOf("wa.me") !== -1 || href.indexOf("whatsapp") !== -1) fireConversion("whatsapp_click");
+  });
 })();
